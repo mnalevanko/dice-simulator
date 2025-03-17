@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dice Rolling Simulation</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #121212;
+        color: #e0e0e0;
+        transition: all 0.3s ease;
+      }
+
+      h1 {
+        margin-bottom: 30px;
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-shadow: 0 0 15px rgba(79, 195, 247, 0.5);
+        font-size: 2.5rem;
+      }
+
+      .dice-container {
+        margin-bottom: 30px;
+        perspective: 600px;
+      }
+
+      .dice {
+        width: 120px;
+        height: 120px;
+        background-color: #2d2d2d;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(79, 195, 247, 0.5),
+          inset 0 0 15px rgba(0, 0, 0, 0.5);
+        display: grid;
+        grid-template-areas:
+          "a . c"
+          "e g f"
+          "d . b";
+        padding: 15px;
+        position: relative;
+        transition: transform 0.3s ease;
+      }
+
+      .dot {
+        width: 22px;
+        height: 22px;
+        background-color: #4fc3f7;
+        border-radius: 50%;
+        align-self: center;
+        justify-self: center;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5),
+          0 0 10px rgba(79, 195, 247, 0.7);
+      }
+
+      .center {
+        grid-area: g;
+      }
+      .top-left {
+        grid-area: a;
+      }
+      .top-right {
+        grid-area: c;
+      }
+      .bottom-left {
+        grid-area: d;
+      }
+      .bottom-right {
+        grid-area: b;
+      }
+      .middle-left {
+        grid-area: e;
+      }
+      .middle-right {
+        grid-area: f;
+      }
+
+      button {
+        padding: 12px 30px;
+        font-size: 18px;
+        background-color: #4fc3f7;
+        color: #121212;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba(79, 195, 247, 0.3);
+        outline: none;
+      }
+
+      button:hover {
+        background-color: #81d4fa;
+        transform: translateY(-3px);
+        box-shadow: 0 0 25px rgba(79, 195, 247, 0.6);
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      button:disabled {
+        background-color: #616161;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+
+      .rolling {
+        animation: roll 0.6s infinite;
+      }
+
+      @keyframes roll {
+        0% {
+          transform: rotateX(0deg) rotateY(0deg);
+        }
+        25% {
+          transform: rotateX(15deg) rotateY(-15deg);
+        }
+        50% {
+          transform: rotateX(0deg) rotateY(0deg);
+        }
+        75% {
+          transform: rotateX(-15deg) rotateY(15deg);
+        }
+        100% {
+          transform: rotateX(0deg) rotateY(0deg);
+        }
+      }
+
+      .container {
+        background-color: #1e1e1e;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .result-text {
+        margin-top: 20px;
+        font-size: 1.2rem;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+
+      .result-text.visible {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>DICE SIMULATOR</h1>
+      <div class="dice-container">
+        <div class="dice" id="dice">
+          <!-- Dots will be dynamically added here -->
+        </div>
+      </div>
+      <button id="rollButton">ROLL</button>
+      <div id="resultText" class="result-text">Roll the dice!</div>
+    </div>
+
+    <script>
+      const dice = document.getElementById("dice");
+      const rollButton = document.getElementById("rollButton");
+      const resultText = document.getElementById("resultText");
+
+      // Dot positions based on dice face
+      const dotPositions = {
+        1: ["center"],
+        2: ["top-left", "bottom-right"],
+        3: ["top-left", "center", "bottom-right"],
+        4: ["top-left", "top-right", "bottom-left", "bottom-right"],
+        5: ["top-left", "top-right", "center", "bottom-left", "bottom-right"],
+        6: [
+          "top-left",
+          "top-right",
+          "middle-left",
+          "middle-right",
+          "bottom-left",
+          "bottom-right",
+        ],
+      };
+
+      // Function to show a specific dice face
+      function showDiceFace(number) {
+        // Clear existing dots
+        dice.innerHTML = "";
+
+        // Add dots for the specific face
+        dotPositions[number].forEach((position) => {
+          const dot = document.createElement("div");
+          dot.classList.add("dot");
+          dot.classList.add(position);
+          dice.appendChild(dot);
+        });
+
+        return number;
+      }
+
+      // Function to get a random dice face (1-6)
+      function getRandomDiceFace() {
+        return Math.floor(Math.random() * 6) + 1;
+      }
+
+      // Roll the dice with animation
+      function rollDice() {
+        rollButton.disabled = true;
+        dice.classList.add("rolling");
+        resultText.classList.remove("visible");
+
+        // Show rapidly changing faces
+        let rollCount = 0;
+        const maxRolls = 15 + Math.floor(Math.random() * 10); // More random rolls for better effect
+        const initialSpeed = 60; // ms between face changes (faster at start)
+        let currentSpeed = initialSpeed;
+
+        // Function to show next face with dynamic speed
+        const showNextFace = () => {
+          const faceValue = showDiceFace(getRandomDiceFace());
+          rollCount++;
+
+          if (rollCount >= maxRolls) {
+            // Final result
+            const finalValue = getRandomDiceFace();
+            setTimeout(() => {
+              dice.classList.remove("rolling");
+              const result = showDiceFace(finalValue);
+              resultText.textContent = `You rolled a ${result}!`;
+              resultText.classList.add("visible");
+              rollButton.disabled = false;
+            }, 100);
+          } else {
+            // Slow down gradually
+            if (rollCount > maxRolls * 0.7) {
+              currentSpeed += 15;
+            }
+            setTimeout(showNextFace, currentSpeed);
+          }
+        };
+
+        // Start the rolling sequence
+        showNextFace();
+      }
+
+      // Add click event to roll button
+      rollButton.addEventListener("click", rollDice);
+
+      // Show initial random face
+      const initialValue = showDiceFace(getRandomDiceFace());
+      resultText.textContent = `Roll the dice!`;
+      resultText.classList.add("visible");
+
+      // Add some hover effects
+      dice.addEventListener("mouseover", () => {
+        if (!dice.classList.contains("rolling")) {
+          dice.style.transform = "scale(1.05)";
+        }
+      });
+
+      dice.addEventListener("mouseout", () => {
+        if (!dice.classList.contains("rolling")) {
+          dice.style.transform = "scale(1)";
+        }
+      });
+    </script>
+  </body>
+</html>
