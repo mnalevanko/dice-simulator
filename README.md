@@ -98,7 +98,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Acknowledgments
 
 - Inspired by classic dice games and modern web design principles
-- Special thanks to [your name/team] for creating this project
 
 ## Contact
 
