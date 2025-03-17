@@ -85,10 +85,6 @@ const initialSpeed = 60; // Starting speed (lower = faster)
 - Edge 79+
 - Opera 50+
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
